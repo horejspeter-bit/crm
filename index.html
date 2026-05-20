@@ -1191,33 +1191,30 @@ const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dGJmcndvcmdqd2x4Y2l0YWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjQxNjIsImV4cCI6MjA5NDg0MDE2Mn0.-pSNRdiGan635KbrSObpXBHeS4B15uK7XYKiWcgFr-w';
 
 const SB_API = SB_URL + '/rest/v1';
-const SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
+const SB_HDR = {
+  'apikey': SB_KEY,
+  'Authorization': 'Bearer ' + SB_KEY,
+  'Content-Type': 'application/json',
+  'Accept': 'application/json',
+  'Prefer': 'return=representation'
+};
 
 async function sbSave(deals) {
-  if (!SB_KEY || SB_KEY.startsWith('VLOŽTE')) return;
   try {
-    const check = await fetch(SB_API + '/deals?id=eq.1&select=id', { headers: SB_HDR });
-    const rows = await check.json();
-    if (rows && rows.length > 0) {
-      await fetch(SB_API + '/deals?id=eq.1', {
-        method: 'PATCH',
-        headers: { ...SB_HDR, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ data: deals })
-      });
-    } else {
-      await fetch(SB_API + '/deals', {
-        method: 'POST',
-        headers: SB_HDR,
-        body: JSON.stringify({ id: 1, data: deals })
-      });
-    }
+    // Zkus UPSERT — vloží nebo aktualizuje v jednom kroku
+    const r = await fetch(SB_API + '/deals', {
+      method: 'POST',
+      headers: { ...SB_HDR, 'Prefer': 'resolution=merge-duplicates,return=minimal' },
+      body: JSON.stringify({ id: 1, data: deals })
+    });
+    if (!r.ok) console.warn('Supabase save status:', r.status, await r.text());
   } catch(e) { console.warn('Supabase offline:', e); }
 }
 
 async function sbLoad() {
-  if (!SB_KEY || SB_KEY.startsWith('VLOŽTE')) return null;
   try {
     const r = await fetch(SB_API + '/deals?id=eq.1&select=data', { headers: SB_HDR });
+    if (!r.ok) { console.warn('Supabase load status:', r.status, await r.text()); return null; }
     const rows = await r.json();
     if (rows && rows[0] && rows[0].data) return rows[0].data;
   } catch(e) { console.warn('Supabase load failed:', e); }
