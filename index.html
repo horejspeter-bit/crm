@@ -50,9 +50,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 /* ── BOTTOM NAV (mobile) ── */
 .bnav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-b)}
 @media(min-width:720px){.bnav{display:none}}
-.btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:7px 4px;background:none;border:none;color:var(--text3);font-size:10px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:.15s}
+.btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;background:none;border:none;color:var(--text3);font-size:9px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:.15s}
 .btab.active{color:var(--accent)}
-.bico{font-size:17px;line-height:1}
+.bico{font-size:16px;line-height:1}
 
 /* ── VIEWS ── */
 .view{display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0}
@@ -376,6 +376,7 @@ button.ghost:hover{background:var(--bg3);color:var(--text)}
     <button class="btab" onclick="gv('customers',this)"><span class="bico">◎</span>Zákazníci</button>
     <button class="btab" onclick="gv('analytics',this)"><span class="bico">◈</span>Analytika</button>
     <button class="btab" onclick="gv('reports',this)"><span class="bico">▤</span>Reporty</button>
+    <button class="btab" onclick="gv('tags',this)"><span class="bico">⊛</span>Štítky</button>
     <button class="btab" onclick="openAdd()"><span class="bico" style="font-size:22px;color:var(--accent)">+</span>Přidat</button>
   </nav>
 </div>
