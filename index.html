@@ -1186,7 +1186,7 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;docume
 function installPWA(){if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;document.getElementById('inst-ban').style.display='none';});}
 window.addEventListener('appinstalled',()=>{document.getElementById('inst-ban').style.display='none';toast('Aplikace nainstalována!');});
 /* ── SUPABASE SYNC ── */
-const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
+const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co/rest/v1/';
 const SB_KEY = 'sb_publishable_cGcRj4ZwDRZxqFwheiZ0UQ_cGI6ANmF'; // ← sem vložte celý klíč
 
 async function sbSave(deals) {
