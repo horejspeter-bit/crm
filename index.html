@@ -1185,42 +1185,52 @@ let dp=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('inst-ban').style.display='flex';});
 function installPWA(){if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;document.getElementById('inst-ban').style.display='none';});}
 window.addEventListener('appinstalled',()=>{document.getElementById('inst-ban').style.display='none';toast('Aplikace nainstalována!');});
+
 /* ── SUPABASE SYNC ── */
+/* VYPLŇTE VAŠE HODNOTY: */
 const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dGJmcndvcmdqd2x4Y2l0YWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjQxNjIsImV4cCI6MjA5NDg0MDE2Mn0.-pSNRdiGan635KbrSObpXBHeS4B15uK7XYKiWcgFr-w';
+const SB_KEY = 'VLOŽTE_SEM_LEGACY_ANON_KLÍČ';
+
+const SB_API = SB_URL + '/rest/v1';
+const SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json' };
 
 async function sbSave(deals) {
+  if (!SB_KEY || SB_KEY.startsWith('VLOŽTE')) return;
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/deals?id=eq.1`, {
-      method: 'PATCH',
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-                 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
-      body: JSON.stringify({ data: deals })
-    });
-    if (r.status === 404 || r.status === 406) {
-      await fetch(`${SB_URL}/rest/v1/deals`, {
+    const check = await fetch(SB_API + '/deals?id=eq.1&select=id', { headers: SB_HDR });
+    const rows = await check.json();
+    if (rows && rows.length > 0) {
+      await fetch(SB_API + '/deals?id=eq.1', {
+        method: 'PATCH',
+        headers: { ...SB_HDR, 'Prefer': 'return=minimal' },
+        body: JSON.stringify({ data: deals })
+      });
+    } else {
+      await fetch(SB_API + '/deals', {
         method: 'POST',
-        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-                   'Content-Type': 'application/json' },
+        headers: SB_HDR,
         body: JSON.stringify({ id: 1, data: deals })
       });
     }
-  } catch(e) { console.warn('Offline, data uložena lokálně'); }
+  } catch(e) { console.warn('Supabase offline:', e); }
 }
 
 async function sbLoad() {
+  if (!SB_KEY || SB_KEY.startsWith('VLOŽTE')) return null;
   try {
-    const r = await fetch(`${SB_URL}/rest/v1/deals?id=eq.1&select=data`, {
-      headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}` }
-    });
+    const r = await fetch(SB_API + '/deals?id=eq.1&select=data', { headers: SB_HDR });
     const rows = await r.json();
     if (rows && rows[0] && rows[0].data) return rows[0].data;
-  } catch(e) { console.warn('Offline, používám lokální data'); }
+  } catch(e) { console.warn('Supabase load failed:', e); }
   return null;
 }
 
 const _origSave = save;
 window.save = function() { _origSave(); sbSave(D); };
+
+/* INIT */
+updateStats();
+renderPipeline();
 
 sbLoad().then(remote => {
   if (remote && remote.length) {
@@ -1228,11 +1238,9 @@ sbLoad().then(remote => {
     localStorage.setItem('crm_v3', JSON.stringify(D));
     renderPipeline();
     updateStats();
+    toast('Data synchronizována ✓');
   }
 });
-/* INIT */
-updateStats();
-renderPipeline();
 </script>
 </body>
 </html>
