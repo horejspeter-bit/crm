@@ -1187,27 +1187,26 @@ function installPWA(){if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;
 window.addEventListener('appinstalled',()=>{document.getElementById('inst-ban').style.display='none';toast('Aplikace nainstalována!');});
 
 /* ── SUPABASE SYNC ── */
-const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co/rest/v1/';   // ← sem vložte Project URL
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dGJmcndvcmdqd2x4Y2l0YWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjQxNjIsImV4cCI6MjA5NDg0MDE2Mn0.-pSNRdiGan635KbrSObpXBHeS4B15uK7XYKiWcgFr-w';         // ← sem vložte anon klíč
+const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
+const SB_KEY = 'sb_publishable_cGcRj4Z...'; // ← sem vložte celý klíč
 
 async function sbSave(deals) {
   try {
-    await fetch(`${SB_URL}/rest/v1/deals?id=eq.1`, {
+    const r = await fetch(`${SB_URL}/rest/v1/deals?id=eq.1`, {
       method: 'PATCH',
       headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
                  'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ data: deals })
-    }).then(async r => {
-      if (r.status === 404 || r.status === 0) {
-        await fetch(`${SB_URL}/rest/v1/deals`, {
-          method: 'POST',
-          headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
-                     'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: 1, data: deals })
-        });
-      }
     });
-  } catch(e) { console.warn('Sync offline, data uložena lokálně'); }
+    if (r.status === 404 || r.status === 406) {
+      await fetch(`${SB_URL}/rest/v1/deals`, {
+        method: 'POST',
+        headers: { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`,
+                   'Content-Type': 'application/json' },
+        body: JSON.stringify({ id: 1, data: deals })
+      });
+    }
+  } catch(e) { console.warn('Offline, data uložena lokálně'); }
 }
 
 async function sbLoad() {
@@ -1217,15 +1216,13 @@ async function sbLoad() {
     });
     const rows = await r.json();
     if (rows && rows[0] && rows[0].data) return rows[0].data;
-  } catch(e) { console.warn('Načítání offline, používám lokální data'); }
+  } catch(e) { console.warn('Offline, používám lokální data'); }
   return null;
 }
 
-// Obalíme původní funkci save()
 const _origSave = save;
 window.save = function() { _origSave(); sbSave(D); };
 
-// Načteme data ze Supabase při startu
 sbLoad().then(remote => {
   if (remote && remote.length) {
     D = remote;
