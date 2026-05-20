@@ -1186,7 +1186,7 @@ window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;docume
 function installPWA(){if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;document.getElementById('inst-ban').style.display='none';});}
 window.addEventListener('appinstalled',()=>{document.getElementById('inst-ban').style.display='none';toast('Aplikace nainstalována!');});
 /* ── SUPABASE SYNC ── */
-const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co/rest/v1/';
+const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dGJmcndvcmdqd2x4Y2l0YWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjQxNjIsImV4cCI6MjA5NDg0MDE2Mn0.-pSNRdiGan635KbrSObpXBHeS4B15uK7XYKiWcgFr-w';
 
 async function sbSave(deals) {
