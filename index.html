@@ -1185,7 +1185,6 @@ let dp=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('inst-ban').style.display='flex';});
 function installPWA(){if(!dp)return;dp.prompt();dp.userChoice.then(()=>{dp=null;document.getElementById('inst-ban').style.display='none';});}
 window.addEventListener('appinstalled',()=>{document.getElementById('inst-ban').style.display='none';toast('Aplikace nainstalována!');});
-
 /* ── SUPABASE SYNC ── */
 const SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
 const SB_KEY = 'sb_publishable_cGcRj4Z...'; // ← sem vložte celý klíč
@@ -1231,7 +1230,6 @@ sbLoad().then(remote => {
     updateStats();
   }
 });
-
 /* INIT */
 updateStats();
 renderPipeline();
