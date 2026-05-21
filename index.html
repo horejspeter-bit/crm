@@ -23,7 +23,7 @@
   --purple:#b87fff;--purpled:rgba(184,127,255,.13);
   --mono:'IBM Plex Mono',monospace;--sans:'Syne',sans-serif;
   --r:6px;--r2:10px;--r3:14px;
-  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-b:env(safe-area-inset-bottom,0px);--safe-t:env(safe-area-inset-top,0px);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;line-height:1.5;-webkit-tap-highlight-color:transparent;overflow:hidden}
@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .nstats span{color:var(--accent)}
 
 /* ── BOTTOM NAV (mobile) ── */
-.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-b)}
+.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-b)} @media(max-width:719px){.main{padding-top:max(10px,var(--safe-t))}}
 @media(min-width:720px){.bnav{display:none}}
 .btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;background:none;border:none;color:var(--text3);font-size:9px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:.15s}
 .btab.active{color:var(--accent)}
@@ -298,9 +298,8 @@ button.ghost:hover{background:var(--bg3);color:var(--text)}
           <input id="s-q" placeholder="Hledat..." oninput="renderCust()" style="max-width:200px">
           <select id="s-stage" onchange="renderCust()" style="width:120px">
             <option value="">Všechny fáze</option>
-            <option value="0">Kontakt</option><option value="1">Kvalifikace</option>
-            <option value="2">Nabídka</option><option value="3">Jednání</option>
-            <option value="4">Uzavřeno</option><option value="5">Neúspěšný</option>
+            <option value="0">Kontakt</option><option value="1">Nabídka</option>
+            <option value="2">Jednání</option><option value="3">Uzavřeno</option>
           </select>
           <select id="s-type" onchange="renderCust()" style="width:110px">
             <option value="">Vše</option>
@@ -315,6 +314,7 @@ button.ghost:hover{background:var(--bg3);color:var(--text)}
           </select>
           <button class="sm" onclick="openAdd()">+ Přidat</button>
           <button class="sm ghost" onclick="openImport()">↑ Import</button>
+          <button class="sm ghost" onclick="exportCustomers()">↓ Export</button>
         </div>
         <div class="tbl-wrap">
           <table class="ctbl">
@@ -404,9 +404,8 @@ button.ghost:hover{background:var(--bg3);color:var(--text)}
   <div class="frow">
     <div class="fg"><label class="flbl">Fáze</label>
       <select id="f-stage">
-        <option value="0">Kontakt</option><option value="1">Kvalifikace</option>
-        <option value="2">Nabídka</option><option value="3">Jednání</option>
-        <option value="4">Uzavřeno</option><option value="5">Neúspěšný</option>
+        <option value="0">Kontakt</option><option value="1">Nabídka</option>
+        <option value="2">Jednání</option><option value="3">Uzavřeno</option>
       </select>
     </div>
     <div class="fg"><label class="flbl">Teplota</label>
@@ -488,7 +487,7 @@ button.ghost:hover{background:var(--bg3);color:var(--text)}
 /* ═══════════════════════════════════════════════
    CONSTANTS & UTILS
 ═══════════════════════════════════════════════ */
-const STAGES=['Kontakt','Kvalifikace','Nabídka','Jednání','Uzavřeno','Neúspěšný'];
+const STAGES=['Kontakt','Nabídka','Jednání','Uzavřeno'];
 const HEAT_LBL={hot:'Horký',warm:'Teplý',cold:'Studený'};
 const HEAT_CLS={hot:'tag-hot',warm:'tag-warm',cold:'tag-cold'};
 const TYPE_LBL={new:'Nový',existing:'Stávající'};
@@ -520,14 +519,14 @@ function seed(){
   function ago(n){const d=new Date();d.setDate(d.getDate()-n);return d.toISOString().slice(0,10);}
   return[
     {id:1,name:'Sportika s.r.o.',contact:'Jan Novák',email:'novak@sportika.cz',phone:'603 111 222',city:'Brno',ctype:'existing',value:180000,realValue:0,stage:0,heat:'hot',tags:['běh','veletrh'],notes:[{text:'Oslovení na veletrhu v Brně.',date:ago(30)},{text:'Zaslán katalog.',date:ago(10)}],added:ago(30),lastContact:ago(10)},
-    {id:2,name:'FitCenter Praha',contact:'Eva Marková',email:'markova@fitcenter.cz',phone:'721 333 444',city:'Praha 6',ctype:'existing',value:320000,realValue:0,stage:1,heat:'warm',tags:['fitko'],notes:[{text:'Schůzka v pobočce.',date:ago(20)}],added:ago(60),lastContact:ago(20)},
-    {id:3,name:'Maratón klub Olomouc',contact:'Petr Dvořák',email:'dvorak@mko.cz',phone:'777 555 666',city:'Olomouc',ctype:'new',value:95000,realValue:0,stage:1,heat:'cold',tags:['běh','klub'],notes:[{text:'Zájem o dresy.',date:ago(100)}],added:ago(100),lastContact:ago(100)},
-    {id:4,name:'Gym Republic',contact:'Lucie Horáčková',email:'horáčková@gymrepublic.cz',phone:'608 777 888',city:'Praha 2',ctype:'new',value:450000,realValue:0,stage:2,heat:'hot',tags:['fitko','Praha'],notes:[{text:'Nabídka odeslána.',date:ago(10)}],added:ago(60),lastContact:ago(5)},
-    {id:5,name:'CrossFit Ostrava',contact:'Tomáš Blažek',email:'blazek@crossfitova.cz',phone:'776 999 000',city:'Ostrava',ctype:'existing',value:210000,realValue:0,stage:3,heat:'warm',tags:['crossfit'],notes:[{text:'Sleva 3 %, čeká smlouvu.',date:ago(5)}],added:ago(60),lastContact:ago(5)},
+    {id:2,name:'FitCenter Praha',contact:'Eva Marková',email:'markova@fitcenter.cz',phone:'721 333 444',city:'Praha 6',ctype:'existing',value:320000,realValue:0,stage:1,heat:'warm',tags:['fitko'],notes:[{text:'Schůzka v pobočce.',date:ago(20)}],added:ago(60),lastContact:ago(20),dealHistory:[]},
+    {id:3,name:'Maratón klub Olomouc',contact:'Petr Dvořák',email:'dvorak@mko.cz',phone:'777 555 666',city:'Olomouc',ctype:'new',value:95000,realValue:0,stage:0,heat:'cold',tags:['běh','klub'],notes:[{text:'Zájem o dresy.',date:ago(100)}],added:ago(100),lastContact:ago(100),dealHistory:[{date:ago(50),result:'lost',value:80000,realValue:0,note:'Zákazník odložil na příští rok'}]},
+    {id:4,name:'Gym Republic',contact:'Lucie Horáčková',email:'horáčková@gymrepublic.cz',phone:'608 777 888',city:'Praha 2',ctype:'new',value:450000,realValue:0,stage:1,heat:'hot',tags:['fitko','Praha'],notes:[{text:'Nabídka odeslána.',date:ago(10)}],added:ago(60),lastContact:ago(5),dealHistory:[]},
+    {id:5,name:'CrossFit Ostrava',contact:'Tomáš Blažek',email:'blazek@crossfitova.cz',phone:'776 999 000',city:'Ostrava',ctype:'existing',value:210000,realValue:0,stage:2,heat:'warm',tags:['crossfit'],notes:[{text:'Sleva 3 %, čeká smlouvu.',date:ago(5)}],added:ago(60),lastContact:ago(5),dealHistory:[]},
     {id:6,name:'Running Team Plzeň',contact:'Kateřina Jelínková',email:'jelinkova@rtp.cz',phone:'602 444 555',city:'Plzeň',ctype:'new',value:130000,realValue:0,stage:0,heat:'cold',tags:['běh'],notes:[{text:'Doporučení od Sportika.',date:t}],added:t,lastContact:t},
-    {id:7,name:'SwimClub Liberec',contact:'Martin Procházka',email:'prochazka@swimclub.cz',phone:'733 222 111',city:'Liberec',ctype:'existing',value:88000,realValue:92000,stage:4,heat:'warm',tags:['plavání'],notes:[{text:'Objednávka podepsána.',date:ago(20)}],added:ago(120),lastContact:ago(20)},
-    {id:8,name:'Hokej Pardubice',contact:'Radek Šimek',email:'simek@hokejpce.cz',phone:'605 888 111',city:'Pardubice',ctype:'existing',value:560000,realValue:540000,stage:4,heat:'hot',tags:['hokej','velký'],notes:[{text:'Smlouva podepsána.',date:ago(5)}],added:ago(90),lastContact:ago(5)},
-    {id:9,name:'Tenis Klub Brno',contact:'Věra Nováková',email:'novakova@tkbrno.cz',phone:'731 222 444',city:'Brno',ctype:'new',value:75000,realValue:0,stage:5,heat:'cold',tags:['tenis'],notes:[{text:'Zákazník přešel ke konkurenci.',date:ago(15)}],added:ago(60),lastContact:ago(15)},
+    {id:7,name:'SwimClub Liberec',contact:'Martin Procházka',email:'prochazka@swimclub.cz',phone:'733 222 111',city:'Liberec',ctype:'existing',value:88000,realValue:92000,stage:3,heat:'warm',tags:['plavání'],notes:[{text:'Objednávka podepsána.',date:ago(20)}],added:ago(120),lastContact:ago(20),dealHistory:[{date:ago(20),result:'won',value:88000,realValue:92000,note:'Objednávka podepsána'}]},
+    {id:8,name:'Hokej Pardubice',contact:'Radek Šimek',email:'simek@hokejpce.cz',phone:'605 888 111',city:'Pardubice',ctype:'existing',value:560000,realValue:540000,stage:3,heat:'hot',tags:['hokej','velký'],notes:[{text:'Smlouva podepsána.',date:ago(5)}],added:ago(90),lastContact:ago(5),dealHistory:[{date:ago(5),result:'won',value:560000,realValue:540000,note:'Smlouva podepsána'}]},
+    {id:9,name:'Tenis Klub Brno',contact:'Věra Nováková',email:'novakova@tkbrno.cz',phone:'731 222 444',city:'Brno',ctype:'new',value:75000,realValue:0,stage:0,heat:'cold',tags:['tenis'],notes:[{text:'Zákazník přešel ke konkurenci.',date:ago(15)}],added:ago(60),lastContact:ago(15),dealHistory:[{date:ago(15),result:'lost',value:75000,realValue:0,note:'Zákazník přešel ke konkurenci'}]},
   ];
 }
 
@@ -627,11 +626,12 @@ function renderDetail(id){
   const db=document.getElementById('det-body');
   const notes=[...(d.notes||[])].reverse();
   const notesHtml=notes.map(n=>`<div class="nitem"><div class="ntxt">${esc(n.text)}</div><div class="nmeta">${isoDisp(n.date)}</div></div>`).join('');
-  const isLost=d.stage===5;
-  const pips=STAGES.slice(0,5).map((_,i)=>`<div class="sp ${isLost?'lost-pip':i<d.stage?'done':i===d.stage?'cur':''}"></div>`).join('');
+  const isLost=false;
+  const pips=STAGES.map((_,i)=>`<div class="sp ${i<d.stage?'done':i===d.stage?'cur':''}"></div>`).join('');
   const movePrev=d.stage>0?`<button class="sm" onclick="mvStage(${d.id},-1)">← ${STAGES[d.stage-1]}</button>`:'';
-  const moveNext=d.stage<4?`<button class="sm primary" onclick="mvStage(${d.id},1)">${STAGES[d.stage+1]} →</button>`:d.stage===4?'<span style="font-size:11px;color:var(--green)">✓ Uzavřeno</span>':'';
-  const markLost=d.stage<4?`<button class="sm danger" onclick="doMarkLost(${d.id})">Neúspěšný</button>`:'';
+  const moveNext=d.stage<3?`<button class="sm primary" onclick="mvStage(${d.id},1)">${STAGES[d.stage+1]} →</button>`:'';
+  const markWon=d.stage===3?`<button class="sm" style="background:var(--greend);color:var(--green);border-color:var(--green)" onclick="doMarkWon(${d.id})">✓ Archivovat jako úspěšný</button>`:'';
+  const markLost=d.stage<3?`<button class="sm danger" onclick="doMarkLost(${d.id})">✗ Neúspěšný</button>`:'';
   const rem=needsReminder(d)&&d.stage<4;
   const remHtml=rem?`<div class="rem-badge" style="margin-bottom:10px">⚠ Bez kontaktu ${daysOverdue(d)} dní po kvartálu</div>`:'';
   const varHtml=d.realValue>0?`<div class="ir"><span class="ik">Variance</span><span class="iv" style="color:${d.realValue>=d.value?'var(--green)':'var(--red)'}">${d.realValue>=d.value?'+':''}${fmt(d.realValue-d.value)} Kč</span></div>`:'';
@@ -643,7 +643,7 @@ function renderDetail(id){
       <div class="det-sub">${esc(d.contact)} · ${esc(d.city||'')}</div>
     </div>
     <div class="sbar">${pips}</div>
-    <div style="font-size:10px;font-family:var(--mono);color:var(--text2);margin-bottom:12px">${isLost?'<span style="color:var(--red)">Neúspěšný</span>':STAGES[d.stage]}</div>
+    <div style="font-size:10px;font-family:var(--mono);color:var(--text2);margin-bottom:12px">${STAGES[d.stage]||STAGES[0]}</div>
     <div class="sec"><div class="sec-title">Kontakt</div>
       <div class="ir"><span class="ik">Email</span><span class="iv">${esc(d.email||'—')}</span></div>
       <div class="ir"><span class="ik">Telefon</span><span class="iv">${esc(d.phone||'—')}</span></div>
@@ -660,7 +660,7 @@ function renderDetail(id){
       <div style="display:flex;gap:5px"><input id="add-tag-inp" placeholder="Nový štítek" style="font-size:11px" onkeydown="if(event.key==='Enter')addTagToDeal(${d.id})"><button class="sm" onclick="addTagToDeal(${d.id})">+</button></div>
     </div>
     <div class="sec"><div class="sec-title">Posunout fázi</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${movePrev}${moveNext}${markLost}</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">${movePrev}${moveNext}${markWon}${markLost}</div>
     </div>
     <div class="sec"><div class="sec-title">Poznámky (${(d.notes||[]).length})</div>
       ${notesHtml||'<div style="font-size:11px;color:var(--text3)">Žádné.</div>'}
@@ -673,11 +673,22 @@ function renderDetail(id){
         </div>
       </div>
     </div>
+    <div class="sec"><div class="sec-title">Historie obchodů (${(d.dealHistory||[]).length})</div>
+      ${(d.dealHistory&&d.dealHistory.length)?[...(d.dealHistory)].reverse().map(h=>`
+        <div class="nitem">
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="font-size:11px;color:${h.result==='won'?'var(--green)':'var(--red)'}">${h.result==='won'?'✓ Úspěšný':'✗ Neúspěšný'}</span>
+            <span style="font-size:10px;font-family:var(--mono);color:var(--text3)">${isoDisp(h.date)}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text2);margin-top:3px">Předp.: ${fmt(h.value)} Kč${h.realValue>0?' · Reál.: '+fmt(h.realValue)+' Kč':''}</div>
+          ${h.note?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(h.note)}</div>`:''}
+        </div>`).join(''):'<div style="font-size:11px;color:var(--text3)">Žádná historie.</div>'}
+    </div>
   </div>
   <div class="det-actions">
     <div class="ai-box"><div class="ai-lbl">AI doporučení</div><div class="ai-txt">${aiTip(d)}</div></div>
     <button onclick="copyEmail(${d.id})" style="font-size:11px;text-align:left">Zkopírovat návrh emailu</button>
-  </div>`;
+  </div>\`;
 }
 
 function aiTip(d){
@@ -693,12 +704,38 @@ function aiTip(d){
 
 function mvStage(id,dir){
   const d=D.find(x=>x.id===id);if(!d)return;
-  d.stage=Math.max(0,Math.min(4,d.stage+dir));
+  d.stage=Math.max(0,Math.min(3,d.stage+dir));
   d.lastContact=isoToday();save();renderPipeline();toast('Fáze aktualizována');
 }
 function doMarkLost(id){
-  const d=D.find(x=>x.id===id);if(!d||!confirm('Označit jako neúspěšný?'))return;
-  d.stage=5;d.lastContact=isoToday();save();renderPipeline();toast('Označeno jako neúspěšný');
+  const d=D.find(x=>x.id===id);if(!d||!confirm('Označit obchod jako neúspěšný?'))return;
+  // Archive current deal to history
+  if(!d.dealHistory)d.dealHistory=[];
+  d.dealHistory.push({
+    date:isoToday(),
+    result:'lost',
+    value:d.value,
+    realValue:d.realValue||0,
+    note:'Obchod neúspěšný'
+  });
+  // Reset deal back to Kontakt for new attempt
+  d.stage=0;d.value=0;d.realValue=0;d.lastContact=isoToday();
+  save();renderPipeline();renderDetail(id);toast('Obchod archivován jako neúspěšný');
+}
+function doMarkWon(id){
+  const d=D.find(x=>x.id===id);if(!d)return;
+  // Archive current deal to history as won
+  if(!d.dealHistory)d.dealHistory=[];
+  d.dealHistory.push({
+    date:isoToday(),
+    result:'won',
+    value:d.value,
+    realValue:d.realValue||0,
+    note:'Obchod úspěšně uzavřen'
+  });
+  // Keep stage as Uzavřeno
+  d.lastContact=isoToday();
+  save();renderPipeline();renderDetail(id);toast('Obchod archivován jako úspěšný ✓');
 }
 function addNote(id){
   const d=D.find(x=>x.id===id);
@@ -711,8 +748,19 @@ function addNote(id){
 function delDeal(id){
   if(!confirm('Smazat zákazníka?'))return;
   D=D.filter(d=>d.id!==id);selId=null;save();
+  // Close mobile overlay if open
+  const det=document.getElementById('det-panel');
+  det.classList.remove('mobile-open');
+  const mb=document.getElementById('mob-back');if(mb)mb.remove();
   document.getElementById('det-empty').style.display='flex';
   document.getElementById('det-body').style.display='none';
+  // On mobile go back to pipeline view
+  if(window.innerWidth<720){
+    document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+    document.getElementById('view-pipeline').classList.add('active');
+    document.querySelectorAll('.btab').forEach(el=>el.classList.remove('active'));
+    document.querySelectorAll('.btab')[0].classList.add('active');
+  }
   renderPipeline();toast('Smazáno');
 }
 function copyEmail(id){
@@ -775,6 +823,28 @@ function renderCust(){
     </tr>`;
   }).join('');
 }
+function exportCustomers(){
+  const q=(document.getElementById('s-q').value||'').toLowerCase();
+  const fs=document.getElementById('s-stage').value;
+  const ft=document.getElementById('s-type').value;
+  const ftag=document.getElementById('s-tag').value;
+  let rows=D.filter(d=>{
+    if(q&&!d.name.toLowerCase().includes(q)&&!(d.contact||'').toLowerCase().includes(q))return false;
+    if(fs!==''&&String(d.stage)!==fs)return false;
+    if(ft&&d.ctype!==ft)return false;
+    if(ftag&&!(d.tags||[]).includes(ftag))return false;
+    return true;
+  });
+  const header=['Název','Kontakt','Email','Telefon','Město','Typ','Štítky','Fáze','Předp.(Kč)','Reál.(Kč)','Posl.kontakt','Přidán','Počet obchodů','Úspěšných','Neúspěšných'];
+  const data=rows.map(d=>{
+    const hist=d.dealHistory||[];
+    return[d.name,d.contact,d.email||'',d.phone||'',d.city||'',d.ctype==='existing'?'Stávající':'Nový',(d.tags||[]).join(';'),STAGES[d.stage]||'',d.value,d.realValue||0,d.lastContact||'',d.added||'',hist.length,hist.filter(h=>h.result==='won').length,hist.filter(h=>h.result==='lost').length];
+  });
+  const csv='﻿'+[header,...data].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('
+');
+  const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),download:`zakaznici-${isoToday()}.csv`});
+  a.click();toast('Export zákazníků stažen');
+}
 function openEditFromTable(id){
   openEdit(id);
 }
@@ -787,7 +857,7 @@ function renderAnalytics(){
   const closed=D.filter(d=>d.stage===4);
   const closedVal=closed.reduce((s,d)=>s+Number(d.value||0),0);
   const closedReal=closed.reduce((s,d)=>s+Number(d.realValue||0),0);
-  const lost=D.filter(d=>d.stage===5);
+  const lost=D.filter(d=>(d.dealHistory||[]).some(h=>h.result==='lost'));
   const active=D.filter(d=>d.stage<4);
   const maxVal=Math.max(...D.map(d=>Number(d.value||0)),1);
   const stageData=STAGES.map((s,i)=>({label:s,count:D.filter(d=>d.stage===i).length}));
@@ -859,8 +929,11 @@ function getRange(){
 function inR(iso,f,t){return iso&&iso>=f&&iso<=t;}
 function calcStats(f,t){
   const added=D.filter(d=>inR(d.added,f,t));
-  const closed=D.filter(d=>d.stage===4&&inR(d.lastContact,f,t));
-  const lost=D.filter(d=>d.stage===5&&inR(d.lastContact,f,t));
+  const closed=D.filter(d=>d.stage===3&&inR(d.lastContact,f,t));
+  // History-based: count deals archived as won/lost in period
+  const wonDeals=D.flatMap(d=>(d.dealHistory||[]).filter(h=>h.result==='won'&&inR(h.date,f,t)).map(h=>({...d,...h})));
+  const lostDeals=D.flatMap(d=>(d.dealHistory||[]).filter(h=>h.result==='lost'&&inR(h.date,f,t)).map(h=>({...d,...h})));
+  const lost=D.filter(d=>(d.dealHistory||[]).some(h=>h.result==='lost'&&inR(h.date,f,t)));
   const remCount=D.filter(d=>needsReminder(d)&&d.stage<4).length;
   const closedVal=closed.reduce((s,d)=>s+Number(d.value||0),0);
   const closedReal=closed.reduce((s,d)=>s+Number(d.realValue||0),0);
