@@ -620,6 +620,23 @@ function selectDeal(id){
   }
 }
 
+function buildHistoryHtml(hist){
+  if(!hist||!hist.length) return '<div style="font-size:11px;color:var(--text3)">Žádná historie.</div>';
+  return [...hist].reverse().map(function(h){
+    var color=h.result==='won'?'var(--green)':'var(--red)';
+    var label=h.result==='won'?'✓ Úspěšný':'✗ Neúspěšný';
+    var vals='Předp.: '+fmt(h.value)+' Kč'+(h.realValue>0?' · Reál.: '+fmt(h.realValue)+' Kč':'');
+    var note=h.note?'<div style="font-size:11px;color:var(--text3);margin-top:2px">'+esc(h.note)+'</div>':'';
+    return '<div class="nitem">'
+      +'<div style="display:flex;align-items:center;gap:6px">'
+      +'<span style="font-size:11px;color:'+color+'">'+label+'</span>'
+      +'<span style="font-size:10px;font-family:var(--mono);color:var(--text3)">'+isoDisp(h.date)+'</span>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--text2);margin-top:3px">'+vals+'</div>'
+      +note
+      +'</div>';
+  }).join('');
+}
 function renderDetail(id){
   const d=D.find(x=>x.id===id);
   if(!d)return;
@@ -674,15 +691,7 @@ function renderDetail(id){
       </div>
     </div>
     <div class="sec"><div class="sec-title">Historie obchodů (${(d.dealHistory||[]).length})</div>
-      ${(d.dealHistory&&d.dealHistory.length)?[...(d.dealHistory)].reverse().map(h=>`
-        <div class="nitem">
-          <div style="display:flex;align-items:center;gap:6px">
-            <span style="font-size:11px;color:${h.result==='won'?'var(--green)':'var(--red)'}">${h.result==='won'?'✓ Úspěšný':'✗ Neúspěšný'}</span>
-            <span style="font-size:10px;font-family:var(--mono);color:var(--text3)">${isoDisp(h.date)}</span>
-          </div>
-          <div style="font-size:11px;color:var(--text2);margin-top:3px">Předp.: ${fmt(h.value)} Kč${h.realValue>0?' · Reál.: '+fmt(h.realValue)+' Kč':''}</div>
-          ${h.note?`<div style="font-size:11px;color:var(--text3);margin-top:2px">${esc(h.note)}</div>`:''}
-        </div>`).join(''):'<div style="font-size:11px;color:var(--text3)">Žádná historie.</div>'}
+      ${buildHistoryHtml(d.dealHistory)}
     </div>
   </div>
   <div class="det-actions">
@@ -1266,12 +1275,12 @@ function confirmImport(){
 const manifest={name:'CRM Sportovní oblečení',short_name:'CRM',start_url:'./',display:'standalone',background_color:'#0f0f0f',theme_color:'#0f0f0f',orientation:'any',icons:[{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect width='192' height='192' rx='32' fill='%230f0f0f'/%3E%3Ctext x='96' y='130' font-size='100' text-anchor='middle' fill='%23c8f542' font-family='monospace'%3E◈%3C/text%3E%3C/svg%3E",sizes:'192x192',type:'image/svg+xml'},{src:"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230f0f0f'/%3E%3Ctext x='256' y='345' font-size='270' text-anchor='middle' fill='%23c8f542' font-family='monospace'%3E◈%3C/text%3E%3C/svg%3E",sizes:'512x512',type:'image/svg+xml'}]};
 document.getElementById('pwa-manifest').href=URL.createObjectURL(new Blob([JSON.stringify(manifest)],{type:'application/json'}));
 
-const SW=`const C='crm-v3';const A=[self.location.pathname];
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(A)).then(()=>self.skipWaiting()));});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim()));});
-self.addEventListener('fetch',e=>{if(e.request.method!=='GET')return;e.respondWith(caches.match(e.request).then(cached=>{const f=fetch(e.request).then(r=>{if(r.ok){const c=r.clone();caches.open(C).then(ca=>ca.put(e.request,c));}return r;}).catch(()=>cached);return cached||f;}));});`;
+// Service worker removed - was blocking updates
+// Unregister any existing service workers
 if('serviceWorker' in navigator){
-  navigator.serviceWorker.register(URL.createObjectURL(new Blob([SW],{type:'application/javascript'}))).catch(()=>{});
+  navigator.serviceWorker.getRegistrations().then(regs=>{
+    regs.forEach(r=>r.unregister());
+  });
 }
 let dp=null;
 window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;document.getElementById('inst-ban').style.display='flex';});
