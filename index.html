@@ -32,7 +32,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
 
 /* ── APP SHELL ── */
-.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden;padding-top:env(safe-area-inset-top,0px)}
 @media(min-width:720px){.app{display:grid;grid-template-rows:48px 1fr}}
 .main{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;min-height:0}
 
@@ -48,7 +48,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--s
 .nstats span{color:var(--accent)}
 
 /* ── BOTTOM NAV (mobile) ── */
-.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-b)} @media(max-width:719px){.main{padding-top:max(10px,var(--safe-t))}}
+.bnav{display:flex;background:var(--bg2);border-top:1px solid var(--border);padding-bottom:var(--safe-b)} 
 @media(min-width:720px){.bnav{display:none}}
 .btab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:6px 2px;background:none;border:none;color:var(--text3);font-size:9px;font-weight:500;cursor:pointer;font-family:var(--sans);transition:.15s}
 .btab.active{color:var(--accent)}
@@ -688,15 +688,16 @@ function renderDetail(id){
   <div class="det-actions">
     <div class="ai-box"><div class="ai-lbl">AI doporučení</div><div class="ai-txt">${aiTip(d)}</div></div>
     <button onclick="copyEmail(${d.id})" style="font-size:11px;text-align:left">Zkopírovat návrh emailu</button>
-  </div>\`;
+  </div>`;
 }
 
 function aiTip(d){
-  if(needsReminder(d)&&d.stage<4) return`⚠ Zákazník ${d.name} nebyl kontaktován ${daysOverdue(d)} dní po kvartálu — ozvěte se co nejdříve!`;
-  if(d.stage===5)return'Neúspěšný obchod — analyzujte důvody. Reaktivace za 6 měsíců.';
-  if(d.stage===4){
+  if(needsReminder(d)&&d.stage<3) return`⚠ Zákazník ${d.name} nebyl kontaktován ${daysOverdue(d)} dní po kvartálu — ozvěte se co nejdříve!`;
+  if(d.stage===3){
+    const hist=d.dealHistory||[];
+    const won=hist.filter(h=>h.result==='won').length;
     const v=d.realValue>0&&d.value>0?` Reálná objednávka byla ${d.realValue>=d.value?'vyšší':'nižší'} než předpoklad o ${fmt(Math.abs(d.realValue-d.value))} Kč.`:'';
-    return`Uzavřeno! Naplánujte follow-up za 3 měsíce.${v}`;
+    return`Uzavřeno! ${won>0?'Celkem '+won+' úspěšných obchodů. ':''}Naplánujte follow-up za 3 měsíce.${v}`;
   }
   const tips={hot:`Horká příležitost — ${fmt(d.value)} Kč, fáze ${STAGES[d.stage]}. Kontaktujte do 48 h.`,warm:`Zájem potvrzen. Zkuste case study nebo pozvánku na akci.`,cold:`Nereaguje aktivně. Zkuste reaktivační email s novinkou.`};
   return tips[d.heat]||tips.cold;
@@ -864,7 +865,7 @@ function renderAnalytics(){
   const maxCnt=Math.max(...stageData.map(x=>x.count),1);
   const byVal=[...D].sort((a,b)=>Number(b.value)-Number(a.value)).slice(0,5);
   const cvr=D.length?Math.round(closed.length/D.length*100):0;
-  const reminders=D.filter(d=>needsReminder(d)&&d.stage<4)
+  const reminders=D.filter(d=>needsReminder(d)&&d.stage<3)
     .sort((a,b)=>daysOverdue(b)-daysOverdue(a)).slice(0,8);
   const variance=closed.filter(d=>d.realValue>0);
   const varHtml=variance.length?variance.map(d=>{
@@ -934,7 +935,7 @@ function calcStats(f,t){
   const wonDeals=D.flatMap(d=>(d.dealHistory||[]).filter(h=>h.result==='won'&&inR(h.date,f,t)).map(h=>({...d,...h})));
   const lostDeals=D.flatMap(d=>(d.dealHistory||[]).filter(h=>h.result==='lost'&&inR(h.date,f,t)).map(h=>({...d,...h})));
   const lost=D.filter(d=>(d.dealHistory||[]).some(h=>h.result==='lost'&&inR(h.date,f,t)));
-  const remCount=D.filter(d=>needsReminder(d)&&d.stage<4).length;
+  const remCount=D.filter(d=>needsReminder(d)&&d.stage<3).length;
   const closedVal=closed.reduce((s,d)=>s+Number(d.value||0),0);
   const closedReal=closed.reduce((s,d)=>s+Number(d.realValue||0),0);
   const variance=closedReal-closedVal;
