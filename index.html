@@ -852,8 +852,7 @@ function exportCustomers(){
     const hist=d.dealHistory||[];
     return[d.name,d.contact,d.email||'',d.phone||'',d.city||'',d.ctype==='existing'?'Stávající':'Nový',(d.tags||[]).join(';'),STAGES[d.stage]||'',d.value,d.realValue||0,d.lastContact||'',d.added||'',hist.length,hist.filter(h=>h.result==='won').length,hist.filter(h=>h.result==='lost').length];
   });
-  const csv='﻿'+[header,...data].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(';')).join('
-');
+    const csv='\ufeff'+[header,...data].map(r=>r.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(';')).join('\n');
   const a=Object.assign(document.createElement('a'),{href:URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8;'})),download:`zakaznici-${isoToday()}.csv`});
   a.click();toast('Export zákazníků stažen');
 }
