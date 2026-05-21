@@ -692,12 +692,14 @@ function renderDetail(id){
 }
 
 function aiTip(d){
-  if(needsReminder(d)&&d.stage<3) return`⚠ Zákazník ${d.name} nebyl kontaktován ${daysOverdue(d)} dní po kvartálu — ozvěte se co nejdříve!`;
+  if(needsReminder(d)&&d.stage<3){
+    return '⚠ Zákazník '+d.name+' nebyl kontaktován '+daysOverdue(d)+' dní po kvartálu — ozvěte se co nejdříve!';
+  }
   if(d.stage===3){
-    const hist=d.dealHistory||[];
-    const won=hist.filter(h=>h.result==='won').length;
-    const v=d.realValue>0&&d.value>0?` Reálná objednávka byla ${d.realValue>=d.value?'vyšší':'nižší'} než předpoklad o ${fmt(Math.abs(d.realValue-d.value))} Kč.`:'';
-    return`Uzavřeno! ${won>0?'Celkem '+won+' úspěšných obchodů. ':''}Naplánujte follow-up za 3 měsíce.${v}`;
+    var hist=d.dealHistory||[];
+    var won=hist.filter(function(h){return h.result==='won';}).length;
+    var diff=d.realValue>0&&d.value>0?' Reálná objednávka byla '+(d.realValue>=d.value?'vyšší':'nižší')+' než předpoklad o '+fmt(Math.abs(d.realValue-d.value))+' Kč.':'';
+    return 'Uzavřeno! '+(won>0?'Celkem '+won+' úspěšných obchodů. ':'')+'Naplánujte follow-up za 3 měsíce.'+diff;
   }
   const tips={hot:`Horká příležitost — ${fmt(d.value)} Kč, fáze ${STAGES[d.stage]}. Kontaktujte do 48 h.`,warm:`Zájem potvrzen. Zkuste case study nebo pozvánku na akci.`,cold:`Nereaguje aktivně. Zkuste reaktivační email s novinkou.`};
   return tips[d.heat]||tips.cold;
