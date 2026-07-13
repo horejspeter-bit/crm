@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Roční plán">
+<meta name="theme-color" content="#0a0a0f">
+<title>Roční plán — Aktivity zákazníků</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #0a0a0f;
+  --bg2:    #111118;
+  --bg3:    #18181f;
+  --bg4:    #1e1e28;
+  --border: #252530;
+  --border2:#323240;
+  --text:   #e8e6f0;
+  --text2:  #7a7890;
+  --text3:  #44424e;
+  --accent: #7c6af7;   /* violet — sport/premium */
+  --ad:     rgba(124,106,247,.14);
+  --ad2:    rgba(124,106,247,.07);
+  --green:  #4ade80;
+  --greend: rgba(74,222,128,.13);
+  --amber:  #fbbf24;
+  --amberd: rgba(251,191,36,.13);
+  --red:    #f87171;
+  --redd:   rgba(248,113,113,.13);
+  --mono:   'IBM Plex Mono', monospace;
+  --sans:   'Syne', sans-serif;
+  --r:  6px;
+  --r2: 10px;
+  --r3: 14px;
+  --sb: env(safe-area-inset-bottom, 0px);
+  --st: env(safe-area-inset-top, 0px);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.5; overflow: hidden; -webkit-tap-highlight-color: transparent; }
+::-webkit-scrollbar { width: 3px; height: 3px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ── APP SHELL ── */
+.app { display: flex; flex-direction: column; height: 100vh; height: 100dvh; overflow: hidden; padding-top: var(--st); }
+
+/* ── TOP BAR ── */
+.topbar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 0 16px; height: 52px; flex-shrink: 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+}
+.topbar-logo {
+  font-family: var(--mono); font-size: 12px; font-weight: 600;
+  color: var(--accent); letter-spacing: .1em; margin-right: 4px;
+}
+.topbar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+.topbar-year {
+  font-family: var(--mono); font-size: 11px; color: var(--text2);
+  background: var(--bg3); border: 1px solid var(--border2);
+  padding: 3px 9px; border-radius: var(--r); cursor: pointer;
+  transition: .15s;
+}
+.topbar-year:hover { border-color: var(--accent); color: var(--accent); }
+.topbar-sep { flex: 1; }
+.topbar-stats {
+  font-family: var(--mono); font-size: 11px; color: var(--text2);
+  display: flex; gap: 14px;
+}
+.topbar-stats .hi { color: var(--accent); }
+
+/* ── MAIN LAYOUT ── */
+.main { flex: 1; display: flex; overflow: hidden; min-height: 0; }
+
+/* ── SIDEBAR ── */
+.sidebar {
+  width: 240px; flex-shrink: 0;
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  background: var(--bg2); overflow: hidden;
+}
+@media (max-width: 700px) { .sidebar { display: none; } .sidebar.open { display: flex; position: fixed; inset: 0; width: 100%; z-index: 50; } }
+.sidebar-head {
+  padding: 12px 14px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+.sidebar-head input {
+  flex: 1; background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--r); color: var(--text); font-family: var(--sans);
+  font-size: 12px; padding: 5px 9px; outline: none;
+}
+.sidebar-head input:focus { border-color: var(--accent); }
+.sidebar-list { flex: 1; overflow-y: auto; padding: 6px 0; }
+.client-item {
+  padding: 9px 14px; cursor: pointer; transition: .12s;
+  display: flex; align-items: center; gap: 10px;
+  border-left: 3px solid transparent;
+}
+.client-item:hover { background: var(--bg3); }
+.client-item.active { background: var(--ad2); border-left-color: var(--accent); }
+.ci-av {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; font-family: var(--mono);
+  color: var(--text2); flex-shrink: 0;
+}
+.client-item.active .ci-av { background: var(--ad); border-color: var(--accent); color: var(--accent); }
+.ci-info { flex: 1; min-width: 0; }
+.ci-name { font-size: 12px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ci-sub  { font-size: 10px; color: var(--text2); margin-top: 1px; font-family: var(--mono); }
+.ci-prog { display: flex; align-items: center; gap: 5px; margin-top: 4px; }
+.ci-bar  { flex: 1; height: 2px; background: var(--border2); border-radius: 1px; overflow: hidden; }
+.ci-fill { height: 100%; background: var(--accent); border-radius: 1px; transition: .4s; }
+.ci-pct  { font-size: 10px; font-family: var(--mono); color: var(--text3); width: 26px; text-align: right; }
+
+/* ── CONTENT ── */
+.content { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+.content-head {
+  padding: 14px 18px; border-bottom: 1px solid var(--border);
+  background: var(--bg2); flex-shrink: 0; display: flex; align-items: flex-start; gap: 14px;
+}
+.ch-av {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: var(--ad); border: 2px solid var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; font-family: var(--mono); color: var(--accent);
+  flex-shrink: 0;
+}
+.ch-name { font-size: 17px; font-weight: 700; }
+.ch-sub  { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.ch-prog-wrap { margin-top: 8px; display: flex; align-items: center; gap: 10px; }
+.ch-bar  { flex: 1; height: 4px; background: var(--border2); border-radius: 2px; overflow: hidden; max-width: 200px; }
+.ch-fill { height: 100%; background: var(--accent); border-radius: 2px; transition: .5s; }
+.ch-pct  { font-family: var(--mono); font-size: 12px; color: var(--accent); }
+.ch-actions { margin-left: auto; display: flex; gap: 6px; align-items: center; }
+
+/* ── CHECKLIST ── */
+.checklist-wrap { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.cat-block { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2); overflow: hidden; }
+.cat-head {
+  padding: 11px 14px; display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border); cursor: pointer; user-select: none;
+  transition: .12s;
+}
+.cat-head:hover { background: var(--bg3); }
+.cat-icon { font-size: 16px; }
+.cat-title { font-size: 13px; font-weight: 700; flex: 1; }
+.cat-prog { font-family: var(--mono); font-size: 11px; color: var(--text2); }
+.cat-done { color: var(--green); }
+.cat-chevron { font-size: 11px; color: var(--text3); transition: .2s; }
+.cat-chevron.open { transform: rotate(90deg); }
+.cat-items { display: flex; flex-direction: column; }
+.act-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px; border-top: 1px solid var(--border);
+  cursor: pointer; transition: .1s; user-select: none;
+}
+.act-item:hover { background: var(--bg3); }
+.act-item.done { opacity: .6; }
+.act-cb {
+  width: 20px; height: 20px; border-radius: 5px; flex-shrink: 0;
+  border: 2px solid var(--border2); background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  transition: .15s; font-size: 11px;
+}
+.act-item.done .act-cb { background: var(--accent); border-color: var(--accent); }
+.act-info { flex: 1; min-width: 0; }
+.act-label { font-size: 13px; font-weight: 500; color: var(--text); }
+.act-item.done .act-label { text-decoration: line-through; color: var(--text2); }
+.act-meta { font-size: 11px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+.act-date { font-family: var(--mono); font-size: 11px; color: var(--text3); white-space: nowrap; }
+.act-q { font-size: 10px; padding: 2px 7px; border-radius: 3px; font-family: var(--mono); font-weight: 600; flex-shrink: 0; }
+.q1 { background: rgba(124,106,247,.2); color: var(--accent); }
+.q2 { background: rgba(74,222,128,.15); color: var(--green); }
+.q3 { background: rgba(251,191,36,.15); color: var(--amber); }
+.q4 { background: rgba(248,113,113,.15); color: var(--red); }
+.qall { background: var(--bg4); color: var(--text2); }
+
+/* ── EMPTY STATE ── */
+.empty {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px; color: var(--text3);
+}
+.empty-icon { font-size: 36px; opacity: .3; }
+.empty-text { font-size: 14px; }
+
+/* ── OVERVIEW ── */
+.overview { flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.ov-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r2);
+  padding: 14px; cursor: pointer; transition: .12s;
+}
+.ov-card:hover { border-color: var(--accent); background: var(--ad2); }
+.ov-card-top { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ov-av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: var(--bg4); border: 1px solid var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; font-family: var(--mono); color: var(--text2);
+  flex-shrink: 0;
+}
+.ov-name { font-size: 13px; font-weight: 700; }
+.ov-sub  { font-size: 11px; color: var(--text2); font-family: var(--mono); }
+.ov-bar-wrap { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.ov-bar  { flex: 1; height: 5px; background: var(--border2); border-radius: 2px; overflow: hidden; }
+.ov-fill { height: 100%; border-radius: 2px; transition: .5s; }
+.ov-pct  { font-family: var(--mono); font-size: 11px; color: var(--text2); width: 30px; text-align: right; }
+.ov-dots { display: flex; gap: 4px; flex-wrap: wrap; }
+.ov-dot  { width: 8px; height: 8px; border-radius: 2px; }
+
+/* ── QUARTER FILTER ── */
+.q-filter {
+  display: flex; gap: 6px; padding: 10px 18px; border-bottom: 1px solid var(--border);
+  flex-shrink: 0; background: var(--bg2); flex-wrap: wrap;
+}
+.qf-btn {
+  padding: 4px 12px; border-radius: var(--r); font-size: 11px; font-weight: 600;
+  cursor: pointer; background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text2); font-family: var(--mono); transition: .15s;
+}
+.qf-btn:hover { color: var(--text); border-color: var(--border2); }
+.qf-btn.active { background: var(--ad); border-color: var(--accent); color: var(--accent); }
+
+/* ── MODAL ── */
+.modal-ov { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.75); z-index: 200; align-items: center; justify-content: center; padding: 16px; }
+.modal-ov.open { display: flex; }
+@media (max-width: 600px) { .modal-ov { align-items: flex-end; padding: 0; } }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border2); border-radius: var(--r3);
+  padding: 20px; width: 500px; max-width: 100%; max-height: 88vh; overflow-y: auto;
+}
+@media (max-width: 600px) { .modal { width: 100%; border-radius: var(--r2) var(--r2) 0 0; max-height: 85vh; } }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 14px; }
+.fg { margin-bottom: 10px; }
+.flbl { font-size: 11px; color: var(--text2); margin-bottom: 3px; display: block; font-family: var(--mono); }
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mbtns { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+
+/* ── FORMS ── */
+input, textarea, select {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: var(--r);
+  color: var(--text); font-family: var(--sans); font-size: 13px; padding: 7px 10px;
+  outline: none; width: 100%; transition: .15s; -webkit-appearance: none;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23555'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 9px center; padding-right: 26px; }
+select option { background: var(--bg3); }
+
+/* ── BUTTONS ── */
+button {
+  font-family: var(--sans); font-size: 12px; font-weight: 600;
+  padding: 7px 14px; border-radius: var(--r);
+  border: 1px solid var(--border2); background: var(--bg3);
+  color: var(--text2); cursor: pointer; transition: .15s; white-space: nowrap;
+}
+button:hover { background: var(--bg4); color: var(--text); }
+button:active { transform: scale(.97); }
+button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+button.primary:hover { opacity: .85; }
+button.danger  { background: var(--redd); color: var(--red); border-color: var(--red); }
+button.ghost   { background: none; border-color: var(--border); color: var(--text2); }
+button.ghost:hover { background: var(--bg3); color: var(--text); }
+button.sm { padding: 4px 10px; font-size: 11px; }
+button.icon-btn { padding: 5px 8px; font-size: 16px; background: none; border-color: var(--border); }
+button.icon-btn:hover { background: var(--bg3); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%) translateY(8px);
+  background: var(--bg3); border: 1px solid var(--border2); border-radius: var(--r);
+  padding: 7px 16px; font-size: 12px; color: var(--text); z-index: 400;
+  opacity: 0; transition: .25s; pointer-events: none; white-space: nowrap;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── MOBILE NAV ── */
+.mob-nav {
+  display: none; background: var(--bg2); border-top: 1px solid var(--border);
+  padding-bottom: var(--sb); flex-shrink: 0;
+}
+@media (max-width: 700px) { .mob-nav { display: flex; } }
+.mob-tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 7px 4px; background: none; border: none; color: var(--text3);
+  font-size: 9px; font-weight: 600; cursor: pointer; font-family: var(--sans); transition: .15s;
+}
+.mob-tab.active { color: var(--accent); }
+.mob-ico { font-size: 18px; line-height: 1; }
+
+/* ── SYNC STATUS ── */
+.sync-dot {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--text3);
+  display: inline-block; margin-right: 4px; transition: .3s;
+}
+.sync-dot.ok { background: var(--green); }
+.sync-dot.err { background: var(--red); }
+.sync-dot.busy { background: var(--amber); animation: pulse .8s infinite; }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .4; } }
+
+/* ── ACTIVITY TEMPLATE EDITOR ── */
+.tmpl-item {
+  display: flex; align-items: center; gap: 8px; padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+}
+.tmpl-item:last-child { border-bottom: none; }
+.tmpl-drag { cursor: grab; color: var(--text3); font-size: 14px; padding: 0 3px; }
+.tmpl-label { flex: 1; font-size: 13px; }
+.tmpl-q { font-family: var(--mono); font-size: 11px; color: var(--text2); width: 24px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="topbar-logo">◈</div>
+    <div class="topbar-title">Roční plán</div>
+    <button class="topbar-year" id="year-btn" onclick="changeYear()">2026</button>
+    <div class="topbar-sep"></div>
+    <div class="topbar-stats">
+      <span><span class="sync-dot" id="sync-dot"></span><span id="sync-lbl" style="font-size:10px">sync</span></span>
+      <span id="global-prog" class="hi">—</span>
+    </div>
+    <button class="sm ghost" onclick="openSettings()" title="Šablony aktivit" style="margin-left:6px">⚙ Šablony</button>
+    <button class="sm primary" onclick="openAddClient()" style="margin-left:4px">+ Zákazník</button>
+  </div>
+
+  <div class="main">
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-head">
+        <input id="search-inp" placeholder="Hledat..." oninput="renderSidebar()">
+        <button class="icon-btn" onclick="closeMobSidebar()" style="display:none" id="mob-close-btn">✕</button>
+      </div>
+      <div class="sidebar-list" id="sidebar-list"></div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="content">
+      <!-- Overview mode -->
+      <div id="view-overview" style="display:flex;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="q-filter" id="ov-filter">
+          <button class="qf-btn active" data-q="all" onclick="setQFilter(this)">Vše</button>
+          <button class="qf-btn" data-q="1" onclick="setQFilter(this)">T1 Led–Bře</button>
+          <button class="qf-btn" data-q="2" onclick="setQFilter(this)">T2 Dub–Čvn</button>
+          <button class="qf-btn" data-q="3" onclick="setQFilter(this)">T3 Čvc–Zář</button>
+          <button class="qf-btn" data-q="4" onclick="setQFilter(this)">T4 Říj–Pro</button>
+          <button class="qf-btn" data-q="0" onclick="setQFilter(this)">Roční</button>
+        </div>
+        <div class="overview" id="overview-grid"></div>
+      </div>
+
+      <!-- Client detail mode -->
+      <div id="view-client" style="display:none;flex-direction:column;flex:1;overflow:hidden;min-height:0">
+        <div class="content-head" id="content-head">
+          <div class="ch-av" id="ch-av">?</div>
+          <div style="flex:1;min-width:0">
+            <div class="ch-name" id="ch-name">—</div>
+            <div class="ch-sub"  id="ch-sub">—</div>
+            <div class="ch-prog-wrap">
+              <div class="ch-bar"><div class="ch-fill" id="ch-fill" style="width:0%"></div></div>
+              <div class="ch-pct" id="ch-pct">0 %</div>
+              <span style="font-size:11px;color:var(--text3);font-family:var(--mono)" id="ch-done-count"></span>
+            </div>
+          </div>
+          <div class="ch-actions">
+            <button class="sm ghost" onclick="resetClient()" title="Resetovat zaškrtnutí">↺</button>
+            <button class="sm ghost" onclick="editClient()" title="Upravit zákazníka">✏</button>
+            <button class="sm ghost" onclick="deleteClient()" title="Smazat">🗑</button>
+            <button class="sm ghost" id="mob-back-btn" style="display:none" onclick="showOverview()">← Přehled</button>
+          </div>
+        </div>
+        <div class="q-filter">
+          <button class="qf-btn active" data-q="all" onclick="setClientQFilter(this)">Vše</button>
+          <button class="qf-btn" data-q="1" onclick="setClientQFilter(this)">T1</button>
+          <button class="qf-btn" data-q="2" onclick="setClientQFilter(this)">T2</button>
+          <button class="qf-btn" data-q="3" onclick="setClientQFilter(this)">T3</button>
+          <button class="qf-btn" data-q="4" onclick="setClientQFilter(this)">T4</button>
+          <button class="qf-btn" data-q="0" onclick="setClientQFilter(this)">Roční</button>
+        </div>
+        <div class="checklist-wrap" id="checklist-wrap"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOBILE NAV -->
+  <nav class="mob-nav">
+    <button class="mob-tab active" id="mob-tab-ov" onclick="showOverview();setMobTab(this)">
+      <span class="mob-ico">⬡</span>Přehled
+    </button>
+    <button class="mob-tab" id="mob-tab-cl" onclick="openMobSidebar();setMobTab(this)">
+      <span class="mob-ico">◎</span>Zákazníci
+    </button>
+    <button class="mob-tab" onclick="openAddClient()">
+      <span class="mob-ico" style="color:var(--accent);font-size:22px">+</span>Přidat
+    </button>
+  </nav>
+</div>
+
+<!-- MODAL: ADD/EDIT CLIENT -->
+<div class="modal-ov" id="client-modal" onclick="if(event.target===this)closeModal('client-modal')">
+<div class="modal">
+  <div class="modal-title" id="client-modal-title">Nový zákazník</div>
+  <div class="frow">
+    <div class="fg"><label class="flbl">Název firmy *</label><input id="m-name" placeholder="ABC s.r.o."></div>
+    <div class="fg"><label class="flbl">Kontakt</label><input id="m-contact" placeholder="Jan Novák"></div>
+  </div>
+  <div class="frow">
+    <div class="fg"><label class="flbl">Město</label><input id="m-city" placeholder="Praha"></div>
+    <div class="fg"><label class="flbl">Segment / Typ</label>
+      <select id="m-seg">
+        <option value="club">Sportovní klub</option>
+        <option value="gym">Posilovna</option>
+        <option value="school">Škola / Univerzita</option>
+        <option value="corp">Firma</option>
+        <option value="other">Jiné</option>
+      </select>
+    </div>
+  </div>
+  <div class="fg"><label class="flbl">Note</label><textarea id="m-note" rows="2" placeholder="Užitečné informace..."></textarea></div>
+  <div class="mbtns">
+    <button class="ghost" onclick="closeModal('client-modal')">Zrušit</button>
+    <button class="primary" onclick="saveClient()">Uložit</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: SETTINGS (activity templates) -->
+<div class="modal-ov" id="settings-modal" onclick="if(event.target===this)closeModal('settings-modal')">
+<div class="modal" style="width:560px">
+  <div class="modal-title">⚙ Šablony d'aktivit</div>
+  <p style="font-size:12px;color:var(--text2);margin-bottom:14px">Tyto aktivity budou vytvořeny pro každého zákazníka. Upravte je podle svého prodejního cyklu.</p>
+  <div id="tmpl-list"></div>
+  <div style="margin-top:14px;display:flex;gap:8px;flex-wrap:wrap">
+    <button class="sm" onclick="addActivityTemplate()">+ Přidat aktivitu</button>
+    <button class="sm ghost" onclick="resetTemplates()">Obnovit výchozí</button>
+  </div>
+  <div class="mbtns">
+    <button class="ghost" onclick="closeModal('settings-modal')">Zavřít</button>
+    <button class="primary" onclick="applyTemplates()">Aplikovat na všechny zákazníky</button>
+  </div>
+</div>
+</div>
+
+<!-- MODAL: ADD ACTIVITY TEMPLATE -->
+<div class="modal-ov" id="act-modal" onclick="if(event.target===this)closeModal('act-modal')">
+<div class="modal" style="width:420px">
+  <div class="modal-title" id="act-modal-title">Nová aktivita</div>
+  <div class="fg"><label class="flbl">Název aktivity *</label><input id="a-label" placeholder="Poslat cenovou nabídku"></div>
+  <div class="fg"><label class="flbl">Popis (volitelné)</label><input id="a-desc" placeholder="Př: zahrnout novinky jarní kolekce"></div>
+  <div class="frow">
+    <div class="fg"><label class="flbl">Kvartál</label>
+      <select id="a-q">
+        <option value="0">Roční (celý rok)</option>
+        <option value="1">T1 — Leden až Březen</option>
+        <option value="2">T2 — Duben až Červen</option>
+        <option value="3">T3 — Červenec až Září</option>
+        <option value="4">T4 — Říjen až Prosinec</option>
+      </select>
+    </div>
+    <div class="fg"><label class="flbl">Kategorie</label>
+      <select id="a-cat">
+        <option value="commercial">🤝 Obchodní</option>
+        <option value="offre">📄 Nabídka & Kalkulace</option>
+        <option value="relance">📞 Urgence</option>
+        <option value="livraison">📦 Objednávka & Dodání</option>
+        <option value="fidelisation">⭐ Věrnost</option>
+        <option value="admin">📋 Administrativa</option>
+      </select>
+    </div>
+  </div>
+  <div class="mbtns">
+    <button class="ghost" onclick="closeModal('act-modal')">Zrušit</button>
+    <button class="primary" onclick="saveActivityTemplate()">Přidat</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════
+var SEG_LBL = { club:'Sportovní klub', gym:'Posilovna', school:'École/Univ.', corp:'Firma', other:'Jiné' };
+var CAT_LBL = { commercial:'🤝 Obchodní', offre:'📄 Nabídka & Kalkulace', relance:'📞 Urgence', livraison:'📦 Objednávka & Dodání', fidelisation:'⭐ Věrnost', admin:'📋 Administrativa' };
+var Q_LBL   = { 0:'Roční', 1:'T1', 2:'T2', 3:'T3', 4:'T4' };
+var Q_CLR   = { 0:'qall', 1:'q1', 2:'q2', 3:'q3', 4:'q4' };
+
+var DEFAULT_TEMPLATES = [
+  { id:'t1',  label:'Navázání kontaktu / Obnovení',   desc:'První hovor nebo roční hovor pro obnovení spolupráce', q:1, cat:'commercial' },
+  { id:'t2',  label:'Odeslání katalogu nové kolekce',  desc:'Odeslat katalog jaro/léto',              q:1, cat:'offre' },
+  { id:'t3',  label:'Předobjednávka jaro/léto',           desc:'Potvrdit množství pro sezónu',            q:1, cat:'offre' },
+  { id:'t4',  label:'Sledování dodání objednávky J/L',         desc:'Potvrdit příjem a spokojenost',             q:2, cat:'livraison' },
+  { id:'t5',  label:'Letní urgence — výprodej',                 desc:'Nabídnout akce v polovině sezóny',                q:2, cat:'relance' },
+  { id:'t6',  label:'Prezentace kolekce podzim/zima',desc:'Schůzka nebo odeslání lookbooku P/Z',                       q:3, cat:'commercial' },
+  { id:'t7',  label:'Předobjednávka podzim/zima',           desc:'Vzít objednávky na zimní sezónu',     q:3, cat:'offre' },
+  { id:'t8',  label:'Sledování dodání objednávky P/Z',         desc:'Potvrdit příjem a spokojenost',             q:4, cat:'livraison' },
+  { id:'t9',  label:'Roční bilance & věrnostní program',          desc:'Shrnutí roku, věrnostní nabídka',           q:4, cat:'fidelisation' },
+  { id:'t10', label:'Odeslání novoročního přání',           desc:'Osobní zpráva + dárek pokud je vhodný',     q:4, cat:'fidelisation' },
+  { id:'t11', label:'Aktualizace karty zákazníka',             desc:'Ověřit kontakty, budget, potřeby',              q:0, cat:'admin' },
+  { id:'t12', label:'Ověření kreditu / obchodních podmínek',     desc:'Ujistit se, že jsou obchodní podmínky aktuální',   q:0, cat:'admin' },
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+var curYear    = new Date().getFullYear();
+var curClient  = null;
+var qFilter    = 'all';
+var clientQF   = 'all';
+var editingId  = null;
+var editingTmplId = null;
+var catCollapsed = {};
+
+function loadState() {
+  var raw = localStorage.getItem('checklist_v1');
+  return raw ? JSON.parse(raw) : { clients: [], templates: DEFAULT_TEMPLATES, checks: {} };
+}
+var S = loadState();
+if (!S.templates || !S.templates.length) S.templates = DEFAULT_TEMPLATES;
+
+function saveState() {
+  localStorage.setItem('checklist_v1', JSON.stringify(S));
+  sbSave();
+}
+
+function isoToday() { return new Date().toISOString().slice(0,10); }
+function isoDisp(s) { if(!s)return'—'; var p=s.split('-'); return (+p[2])+'. '+(+p[1])+'. '+p[0]; }
+function initials(n) { return String(n||'').split(' ').map(function(w){return w[0]||'';}).join('').slice(0,2).toUpperCase(); }
+function uid() { return Math.random().toString(36).slice(2,9); }
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toast(msg, dur) {
+  var t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, dur || 2000);
+}
+
+// ═══════════════════════════════════════
+// CHECK KEY
+// ═══════════════════════════════════════
+function checkKey(clientId, tmplId) {
+  return clientId + '|' + tmplId + '|' + curYear;
+}
+function isChecked(clientId, tmplId) {
+  return !!S.checks[checkKey(clientId, tmplId)];
+}
+function toggleCheck(clientId, tmplId) {
+  var k = checkKey(clientId, tmplId);
+  if (S.checks[k]) {
+    delete S.checks[k];
+  } else {
+    S.checks[k] = isoToday();
+  }
+  saveState();
+}
+function getCheckDate(clientId, tmplId) {
+  return S.checks[checkKey(clientId, tmplId)] || null;
+}
+
+// ═══════════════════════════════════════
+// PROGRESS
+// ═══════════════════════════════════════
+function clientProgress(clientId, qf) {
+  var tmpls = filterByQ(S.templates, qf);
+  if (!tmpls.length) return { done: 0, total: 0, pct: 0 };
+  var done = tmpls.filter(function(t) { return isChecked(clientId, t.id); }).length;
+  return { done: done, total: tmpls.length, pct: Math.round(done / tmpls.length * 100) };
+}
+function filterByQ(tmpls, qf) {
+  if (qf === 'all') return tmpls;
+  var q = Number(qf);
+  return tmpls.filter(function(t) { return t.q === q; });
+}
+function globalProgress() {
+  if (!S.clients.length) return { done: 0, total: 0, pct: 0 };
+  var total = S.clients.length * S.templates.length;
+  var done = 0;
+  S.clients.forEach(function(c) {
+    S.templates.forEach(function(t) {
+      if (isChecked(c.id, t.id)) done++;
+    });
+  });
+  return { done: done, total: total, pct: total ? Math.round(done/total*100) : 0 };
+}
+function progressColor(pct) {
+  if (pct >= 80) return 'var(--green)';
+  if (pct >= 40) return 'var(--accent)';
+  if (pct >  0)  return 'var(--amber)';
+  return 'var(--border2)';
+}
+
+// ═══════════════════════════════════════
+// RENDER SIDEBAR
+// ═══════════════════════════════════════
+function renderSidebar() {
+  var q = (document.getElementById('search-inp').value || '').toLowerCase();
+  var clients = S.clients.filter(function(c) {
+    return !q || c.name.toLowerCase().includes(q) || (c.contact||'').toLowerCase().includes(q);
+  });
+  var list = document.getElementById('sidebar-list');
+  if (!clients.length) {
+    list.innerHTML = '<div style="padding:20px 14px;font-size:12px;color:var(--text3)">Žádný zákazník nenalezen.</div>';
+    return;
+  }
+  list.innerHTML = clients.map(function(c) {
+    var p = clientProgress(c.id, 'all');
+    var active = curClient && curClient.id === c.id;
+    return '<div class="client-item' + (active?' active':'') + '" onclick="selectClient(\'' + c.id + '\')">'
+      + '<div class="ci-av">' + initials(c.name) + '</div>'
+      + '<div class="ci-info">'
+      + '<div class="ci-name">' + esc(c.name) + '</div>'
+      + '<div class="ci-sub">' + esc(c.city||'') + (c.city&&c.seg?' · ':'') + esc(SEG_LBL[c.seg]||'') + '</div>'
+      + '<div class="ci-prog">'
+      + '<div class="ci-bar"><div class="ci-fill" style="width:'+p.pct+'%;background:'+progressColor(p.pct)+'"></div></div>'
+      + '<div class="ci-pct">' + p.pct + '%</div>'
+      + '</div></div></div>';
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// RENDER OVERVIEW
+// ═══════════════════════════════════════
+function renderOverview() {
+  var gp = globalProgress();
+  document.getElementById('global-prog').textContent = gp.pct + '% (' + gp.done + '/' + gp.total + ')';
+
+  var grid = document.getElementById('overview-grid');
+  if (!S.clients.length) {
+    grid.innerHTML = '<div class="empty"><div class="empty-icon">◎</div><div class="empty-text">Žádný zákazník — klikněte na <strong>+ Zákazník</strong> pro začátek.</div></div>';
+    return;
+  }
+
+  // Sort: least progress first
+  var sorted = S.clients.slice().sort(function(a, b) {
+    return clientProgress(a.id, qFilter).pct - clientProgress(b.id, qFilter).pct;
+  });
+
+  var tmpls = filterByQ(S.templates, qFilter);
+
+  grid.innerHTML = '<div class="ov-grid">' + sorted.map(function(c) {
+    var p = clientProgress(c.id, qFilter);
+    var col = progressColor(p.pct);
+    var dots = tmpls.map(function(t) {
+      var done = isChecked(c.id, t.id);
+      var dotCol = done ? progressColor(100) : 'var(--border2)';
+      return '<div class="ov-dot" style="background:' + dotCol + '" title="' + esc(t.label) + (done?' ✓':'') + '"></div>';
+    }).join('');
+    return '<div class="ov-card" onclick="selectClient(\'' + c.id + '\')">'
+      + '<div class="ov-card-top">'
+      + '<div class="ov-av" style="border-color:'+col+';color:'+col+';background:'+col.replace(')', ', .12)').replace('var(', 'rgba(').replace(/--\w+/, '')+'var(--bg4)">' + initials(c.name) + '</div>'
+      + '<div><div class="ov-name">' + esc(c.name) + '</div><div class="ov-sub">' + esc(c.city||SEG_LBL[c.seg]||'') + '</div></div>'
+      + '</div>'
+      + '<div class="ov-bar-wrap"><div class="ov-bar"><div class="ov-fill" style="width:'+p.pct+'%;background:'+col+'"></div></div><div class="ov-pct">'+p.pct+'%</div></div>'
+      + '<div class="ov-dots">' + dots + '</div>'
+      + '</div>';
+  }).join('') + '</div>';
+}
+
+// ═══════════════════════════════════════
+// RENDER CHECKLIST
+// ═══════════════════════════════════════
+function renderChecklist() {
+  if (!curClient) return;
+  var wrap = document.getElementById('checklist-wrap');
+  var tmpls = filterByQ(S.templates, clientQF);
+
+  if (!tmpls.length) {
+    wrap.innerHTML = '<div class="empty"><div class="empty-icon">✓</div><div class="empty-text">Žádné aktivity pro tento filtr.</div></div>';
+    return;
+  }
+
+  // Group by category
+  var cats = {};
+  tmpls.forEach(function(t) {
+    if (!cats[t.cat]) cats[t.cat] = [];
+    cats[t.cat].push(t);
+  });
+
+  var p = clientProgress(curClient.id, clientQF);
+  document.getElementById('ch-fill').style.width = p.pct + '%';
+  document.getElementById('ch-pct').textContent  = p.pct + ' %';
+  document.getElementById('ch-done-count').textContent = p.done + '/' + p.total + ' aktivit';
+
+  var html = '';
+  Object.keys(CAT_LBL).forEach(function(catKey) {
+    if (!cats[catKey]) return;
+    var items = cats[catKey];
+    var done = items.filter(function(t) { return isChecked(curClient.id, t.id); }).length;
+    var allDone = done === items.length;
+    var collapsed = catCollapsed[catKey];
+
+    html += '<div class="cat-block">';
+    html += '<div class="cat-head" onclick="toggleCat(\'' + catKey + '\')">'
+      + '<span class="cat-icon">' + CAT_LBL[catKey].split(' ')[0] + '</span>'
+      + '<span class="cat-title">' + CAT_LBL[catKey].slice(2) + '</span>'
+      + '<span class="cat-prog' + (allDone?' cat-done':'') + '">' + done + '/' + items.length + '</span>'
+      + '<span class="cat-chevron' + (collapsed?'':' open') + '">▶</span>'
+      + '</div>';
+
+    if (!collapsed) {
+      html += '<div class="cat-items">';
+      items.forEach(function(t) {
+        var done = isChecked(curClient.id, t.id);
+        var ddate = getCheckDate(curClient.id, t.id);
+        html += '<div class="act-item' + (done?' done':'') + '" onclick="check(\'' + t.id + '\')">'
+          + '<div class="act-cb">' + (done ? '✓' : '') + '</div>'
+          + '<div class="act-info">'
+          + '<div class="act-label">' + esc(t.label) + '</div>'
+          + (t.desc ? '<div class="act-meta">' + esc(t.desc) + '</div>' : '')
+          + '</div>'
+          + '<span class="act-q ' + Q_CLR[t.q] + '">' + Q_LBL[t.q] + '</span>'
+          + (ddate ? '<div class="act-date">' + isoDisp(ddate) + '</div>' : '')
+          + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  wrap.innerHTML = html || '<div class="empty"><div class="empty-text">Žádné aktivity.</div></div>';
+}
+
+function check(tmplId) {
+  if (!curClient) return;
+  toggleCheck(curClient.id, tmplId);
+  renderChecklist();
+  renderSidebar();
+  var p = clientProgress(curClient.id, 'all');
+  toast(p.pct + '% — ' + p.done + '/' + p.total + ' aktivit');
+}
+
+function toggleCat(catKey) {
+  catCollapsed[catKey] = !catCollapsed[catKey];
+  renderChecklist();
+}
+
+// ═══════════════════════════════════════
+// SELECT CLIENT
+// ═══════════════════════════════════════
+function selectClient(id) {
+  curClient = S.clients.find(function(c) { return c.id === id; }) || null;
+  if (!curClient) return;
+  document.getElementById('ch-av').textContent   = initials(curClient.name);
+  document.getElementById('ch-name').textContent = curClient.name;
+  document.getElementById('ch-sub').textContent  = (curClient.city||'') + (curClient.city&&curClient.contact?' · ':'') + (curClient.contact||'');
+  document.getElementById('view-overview').style.display = 'none';
+  document.getElementById('view-client').style.display   = 'flex';
+  document.getElementById('view-client').style.flexDirection = 'column';
+  document.getElementById('mob-back-btn').style.display = window.innerWidth <= 700 ? 'inline-block' : 'none';
+  renderChecklist();
+  renderSidebar();
+  closeMobSidebar();
+}
+
+function showOverview() {
+  curClient = null;
+  document.getElementById('view-client').style.display   = 'none';
+  document.getElementById('view-overview').style.display = 'flex';
+  document.getElementById('view-overview').style.flexDirection = 'column';
+  renderOverview();
+  renderSidebar();
+}
+
+// ═══════════════════════════════════════
+// FILTERS
+// ═══════════════════════════════════════
+function setQFilter(btn) {
+  qFilter = btn.dataset.q;
+  document.querySelectorAll('#ov-filter .qf-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderOverview();
+}
+function setClientQFilter(btn) {
+  clientQF = btn.dataset.q;
+  document.querySelectorAll('#view-client .q-filter .qf-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  renderChecklist();
+}
+
+// ═══════════════════════════════════════
+// CLIENT CRUD
+// ═══════════════════════════════════════
+function openAddClient() {
+  editingId = null;
+  document.getElementById('client-modal-title').textContent = 'Nový zákazník';
+  ['m-name','m-contact','m-city','m-note'].forEach(function(id) { document.getElementById(id).value = ''; });
+  document.getElementById('m-seg').value = 'club';
+  document.getElementById('client-modal').classList.add('open');
+}
+function editClient() {
+  if (!curClient) return;
+  editingId = curClient.id;
+  document.getElementById('client-modal-title').textContent = 'Upravit zákazníka';
+  document.getElementById('m-name').value    = curClient.name || '';
+  document.getElementById('m-contact').value = curClient.contact || '';
+  document.getElementById('m-city').value    = curClient.city || '';
+  document.getElementById('m-note').value    = curClient.note || '';
+  document.getElementById('m-seg').value     = curClient.seg || 'club';
+  document.getElementById('client-modal').classList.add('open');
+}
+function saveClient() {
+  var name = document.getElementById('m-name').value.trim();
+  if (!name) { toast('Název je povinný'); return; }
+  if (editingId) {
+    var c = S.clients.find(function(x) { return x.id === editingId; });
+    if (c) {
+      c.name    = name;
+      c.contact = document.getElementById('m-contact').value.trim();
+      c.city    = document.getElementById('m-city').value.trim();
+      c.note    = document.getElementById('m-note').value.trim();
+      c.seg     = document.getElementById('m-seg').value;
+      curClient = c;
+      if (document.getElementById('view-client').style.display !== 'none') selectClient(c.id);
+    }
+  } else {
+    var nc = {
+      id: uid(), name: name,
+      contact: document.getElementById('m-contact').value.trim(),
+      city:    document.getElementById('m-city').value.trim(),
+      note:    document.getElementById('m-note').value.trim(),
+      seg:     document.getElementById('m-seg').value,
+      added:   isoToday()
+    };
+    S.clients.push(nc);
+    toast('Zákazník přidán ✓');
+  }
+  saveState();
+  closeModal('client-modal');
+  renderSidebar();
+  renderOverview();
+}
+function deleteClient() {
+  if (!curClient || !confirm('Smazat zákazníka ' + curClient.name + ' a všechny jeho aktivity?')) return;
+  var id = curClient.id;
+  S.clients = S.clients.filter(function(c) { return c.id !== id; });
+  // Remove checks for this client
+  Object.keys(S.checks).forEach(function(k) { if (k.startsWith(id + '|')) delete S.checks[k]; });
+  saveState();
+  showOverview();
+  toast('Zákazník smazán');
+}
+function resetClient() {
+  if (!curClient || !confirm('Resetovat všechna zaškrtnutí zákazníka ' + curClient.name + ' pro rok ' + curYear + '?')) return;
+  var id = curClient.id;
+  Object.keys(S.checks).forEach(function(k) {
+    if (k.startsWith(id + '|') && k.endsWith('|' + curYear)) delete S.checks[k];
+  });
+  saveState();
+  renderChecklist();
+  renderSidebar();
+  toast('Zaškrtnutí resetováno');
+}
+
+// ═══════════════════════════════════════
+// YEAR
+// ═══════════════════════════════════════
+function changeYear() {
+  var y = prompt('Zobrazit rok:', curYear);
+  if (!y || isNaN(+y)) return;
+  curYear = +y;
+  document.getElementById('year-btn').textContent = curYear;
+  renderSidebar();
+  renderOverview();
+  if (curClient) renderChecklist();
+  toast('Rok: ' + curYear);
+}
+
+// ═══════════════════════════════════════
+// TEMPLATES
+// ═══════════════════════════════════════
+function openSettings() {
+  renderTemplateList();
+  document.getElementById('settings-modal').classList.add('open');
+}
+function renderTemplateList() {
+  var list = document.getElementById('tmpl-list');
+  if (!S.templates.length) {
+    list.innerHTML = '<p style="font-size:12px;color:var(--text3)">Žádné šablony.</p>';
+    return;
+  }
+  list.innerHTML = S.templates.map(function(t, i) {
+    return '<div class="tmpl-item">'
+      + '<span class="tmpl-drag">⠿</span>'
+      + '<span class="tmpl-label" style="font-size:12px"><strong>' + esc(t.label) + '</strong>'
+      + (t.desc ? '<br><span style="color:var(--text2);font-size:11px">' + esc(t.desc) + '</span>' : '') + '</span>'
+      + '<span class="act-q ' + Q_CLR[t.q] + '" style="margin-right:4px">' + Q_LBL[t.q] + '</span>'
+      + '<button class="sm ghost" onclick="removeTemplate(\'' + t.id + '\')" style="padding:2px 7px;font-size:11px">✕</button>'
+      + '</div>';
+  }).join('');
+}
+function addActivityTemplate() {
+  editingTmplId = null;
+  document.getElementById('act-modal-title').textContent = 'Nová aktivita';
+  document.getElementById('a-label').value = '';
+  document.getElementById('a-desc').value  = '';
+  document.getElementById('a-q').value     = '0';
+  document.getElementById('a-cat').value   = 'commercial';
+  document.getElementById('act-modal').classList.add('open');
+}
+function saveActivityTemplate() {
+  var label = document.getElementById('a-label').value.trim();
+  if (!label) { toast('Název je povinný'); return; }
+  var tmpl = {
+    id:    uid(),
+    label: label,
+    desc:  document.getElementById('a-desc').value.trim(),
+    q:     Number(document.getElementById('a-q').value),
+    cat:   document.getElementById('a-cat').value
+  };
+  S.templates.push(tmpl);
+  saveState();
+  closeModal('act-modal');
+  renderTemplateList();
+  toast('Aktivita přidána');
+}
+function removeTemplate(id) {
+  if (!confirm('Smazat tuto šablonu aktivity?')) return;
+  S.templates = S.templates.filter(function(t) { return t.id !== id; });
+  saveState();
+  renderTemplateList();
+  toast('Šablona smazána');
+}
+function resetTemplates() {
+  if (!confirm('Obnovit všechny výchozí šablony?')) return;
+  S.templates = DEFAULT_TEMPLATES.map(function(t) { return Object.assign({}, t); });
+  saveState();
+  renderTemplateList();
+  toast('Šablony obnoveny');
+}
+function applyTemplates() {
+  // Add any new template IDs to existing client check structure (nothing to do — checks are per template ID)
+  saveState();
+  closeModal('settings-modal');
+  renderSidebar();
+  if (curClient) renderChecklist();
+  renderOverview();
+  toast('Šablony aplikovány na všechny zákazníky ✓');
+}
+
+// ═══════════════════════════════════════
+// MOBILE
+// ═══════════════════════════════════════
+function openMobSidebar() {
+  var sb = document.getElementById('sidebar');
+  sb.classList.add('open');
+  document.getElementById('mob-close-btn').style.display = 'inline-block';
+}
+function closeMobSidebar() {
+  var sb = document.getElementById('sidebar');
+  sb.classList.remove('open');
+  document.getElementById('mob-close-btn').style.display = 'none';
+}
+function setMobTab(btn) {
+  document.querySelectorAll('.mob-tab').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+}
+
+// ═══════════════════════════════════════
+// MODAL
+// ═══════════════════════════════════════
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+// ═══════════════════════════════════════
+// SUPABASE SYNC
+// ═══════════════════════════════════════
+var SB_URL = 'https://gztbfrworgjwlxcitado.supabase.co';
+var SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd6dGJmcndvcmdqd2x4Y2l0YWRvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkyNjQxNjIsImV4cCI6MjA5NDg0MDE2Mn0.-pSNRdiGan635KbrSObpXBHeS4B15uK7XYKiWcgFr-w';
+var SB_API = SB_URL + '/rest/v1';
+var SB_HDR = { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' };
+var SB_ROW = 2; // Row ID 2 — CRM uses row 1, checklist uses row 2
+
+function setSyncStatus(s) {
+  var dot = document.getElementById('sync-dot');
+  var lbl = document.getElementById('sync-lbl');
+  dot.className = 'sync-dot ' + s;
+  lbl.textContent = s === 'ok' ? 'sync' : s === 'busy' ? 'ukládám...' : 'offline';
+}
+
+function sbSave() {
+  setSyncStatus('busy');
+  fetch(SB_API + '/deals', {
+    method: 'POST',
+    headers: Object.assign({}, SB_HDR, { 'Prefer': 'resolution=merge-duplicates,return=minimal' }),
+    body: JSON.stringify({ id: SB_ROW, data: S })
+  }).then(function(r) {
+    setSyncStatus(r.ok ? 'ok' : 'err');
+    if (!r.ok) r.text().then(function(t) { console.warn('SB save:', r.status, t); });
+  }).catch(function() { setSyncStatus('err'); });
+}
+
+function sbLoad() {
+  setSyncStatus('busy');
+  return fetch(SB_API + '/deals?id=eq.' + SB_ROW + '&select=data', { headers: SB_HDR })
+    .then(function(r) { return r.json(); })
+    .then(function(rows) {
+      setSyncStatus('ok');
+      return (rows && rows[0] && rows[0].data) ? rows[0].data : null;
+    })
+    .catch(function() { setSyncStatus('err'); return null; });
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+document.getElementById('year-btn').textContent = curYear;
+renderSidebar();
+renderOverview();
+
+sbLoad().then(function(remote) {
+  if (remote && (remote.clients || remote.checks)) {
+    // Merge: remote wins for client list and checks
+    S = Object.assign({ templates: S.templates }, remote);
+    if (!S.templates || !S.templates.length) S.templates = DEFAULT_TEMPLATES;
+    localStorage.setItem('checklist_v1', JSON.stringify(S));
+    renderSidebar();
+    renderOverview();
+    if (curClient) {
+      curClient = S.clients.find(function(c) { return c.id === curClient.id; }) || null;
+      if (curClient) renderChecklist();
+      else showOverview();
+    }
+    toast('Data synchronizována ✓');
+  }
+});
+</script>
+</body>
+</html>
